@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useToast } from "@/hooks/use-toast";
-import { BadgeCheck, Building, ChevronDown, Info, MapPin, Phone, X } from "lucide-react";
+import { BadgeCheck, Building, ChevronDown, Info, MapPin, Phone, X, Link as LinkIcon } from "lucide-react";
 
 const RegisterMosque = () => {
   const navigate = useNavigate();
@@ -22,8 +22,7 @@ const RegisterMosque = () => {
     city: "",
     state: "",
     country: "India",
-    latitude: "",
-    longitude: "",
+    googleMapsLink: "",
     school: "Shafi'i",
     facilities: [] as string[],
     contactNumber: "",
@@ -61,6 +60,27 @@ const RegisterMosque = () => {
     setShowSchoolOptions(false);
   };
 
+  // Extract coordinates from Google Maps link
+  const extractCoordinates = (googleMapsLink: string) => {
+    try {
+      // Common pattern for Google Maps links with coordinates
+      const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
+      const match = googleMapsLink.match(regex);
+      
+      if (match && match.length >= 3) {
+        return {
+          latitude: match[1],
+          longitude: match[2]
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Error extracting coordinates:", error);
+      return null;
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -81,8 +101,20 @@ const RegisterMosque = () => {
     
     setIsLoading(true);
     
+    // Extract coordinates from Google Maps link if provided
+    const coordinates = formData.googleMapsLink 
+      ? extractCoordinates(formData.googleMapsLink)
+      : null;
+    
+    // Prepare data for submission
+    const mosqueData = {
+      ...formData,
+      coordinates: coordinates || { latitude: "", longitude: "" }
+    };
+    
     // Simulate API call
     setTimeout(() => {
+      console.log("Mosque data to be saved:", mosqueData);
       toast({
         title: "Registration successful",
         description: "Your mosque registration is pending approval",
@@ -219,47 +251,27 @@ const RegisterMosque = () => {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="latitude" className="block text-sm font-medium mb-1">
-                        Latitude
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="latitude"
-                          name="latitude"
-                          type="text"
-                          value={formData.latitude}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-mosque focus:border-transparent"
-                          placeholder="e.g. 13.0068"
-                        />
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
-                          <MapPin size={16} />
-                        </div>
+                  <div>
+                    <label htmlFor="googleMapsLink" className="block text-sm font-medium mb-1">
+                      Google Maps Link
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="googleMapsLink"
+                        name="googleMapsLink"
+                        type="url"
+                        value={formData.googleMapsLink}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-mosque focus:border-transparent"
+                        placeholder="e.g. https://maps.google.com/..."
+                      />
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
+                        <LinkIcon size={16} />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">Optional - We can help set this later</p>
                     </div>
-                    <div>
-                      <label htmlFor="longitude" className="block text-sm font-medium mb-1">
-                        Longitude
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="longitude"
-                          name="longitude"
-                          type="text"
-                          value={formData.longitude}
-                          onChange={handleChange}
-                          className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-mosque focus:border-transparent"
-                          placeholder="e.g. 74.7944"
-                        />
-                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
-                          <MapPin size={16} />
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">Optional - We can help set this later</p>
-                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Paste the Google Maps link for your mosque location. We'll extract the coordinates automatically.
+                    </p>
                   </div>
                 </div>
               )}
