@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Clock, Users, ArrowRight, Search } from "lucide-react";
+import { MapPin, ArrowRight, Search } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/common/Badge";
@@ -10,7 +10,7 @@ import { LocationButton } from "@/components/common/LocationButton";
 import { MosqueList } from "@/components/mosque/MosqueList";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Mosque, PrayerTimes } from "@/lib/types";
+import { Mosque } from "@/lib/types";
 import { mockMosques, mockPrayerTimes, searchMosques, getNearestMosques } from "@/lib/mosqueData";
 
 const Index = () => {
@@ -92,36 +92,6 @@ const Index = () => {
         </Container>
       </section>
       
-      {/* Features Section */}
-      <section className="py-16 bg-background">
-        <Container>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-semibold mb-4">How It Works</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Our platform helps you find nearby mosques and access accurate prayer timings through community-driven data.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<MapPin className="h-8 w-8 text-mosque" />}
-              title="Find Nearby Mosques"
-              description="Use your location to discover mosques around you with detailed information about facilities."
-            />
-            <FeatureCard
-              icon={<Clock className="h-8 w-8 text-mosque" />}
-              title="Prayer Timings"
-              description="Get accurate prayer times with both Adhan and Iqamah schedules for each mosque."
-            />
-            <FeatureCard
-              icon={<Users className="h-8 w-8 text-mosque" />}
-              title="Community Updates"
-              description="Stay informed with announcements about special events, Eid prayers, and community gatherings."
-            />
-          </div>
-        </Container>
-      </section>
-      
       {/* Mosque List Section */}
       <section className="py-16 bg-secondary/30">
         <Container>
@@ -164,7 +134,7 @@ const Index = () => {
                 className="bg-white text-mosque hover:bg-white/90 rounded-full"
                 asChild
               >
-                <Link to="/register-mosque">Register Your Mosque</Link>
+                <Link to="/admin/register-mosque">Register Your Mosque</Link>
               </Button>
               <Button
                 variant="outline"
@@ -172,7 +142,7 @@ const Index = () => {
                 className="text-white border-white/30 hover:bg-white/10 rounded-full"
                 asChild
               >
-                <Link to="/admin-login">Admin Login</Link>
+                <Link to="/admin/login">Admin Login</Link>
               </Button>
             </div>
           </div>
@@ -183,21 +153,5 @@ const Index = () => {
     </div>
   );
 };
-
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}
-
-const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
-  <div className="bg-card rounded-xl p-6 shadow-elegant hover:shadow-elegant-lg transition-all duration-300 transform hover:-translate-y-1">
-    <div className="mb-4 bg-primary/5 w-16 h-16 rounded-full flex items-center justify-center">
-      {icon}
-    </div>
-    <h3 className="text-xl font-medium mb-2">{title}</h3>
-    <p className="text-muted-foreground">{description}</p>
-  </div>
-);
 
 export default Index;

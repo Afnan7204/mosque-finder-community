@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, MapPin, Bell, Search } from "lucide-react";
+import { Menu, X, MapPin, Bell, Search, Info, ClipboardList, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -35,20 +35,23 @@ export const Header = () => {
             className="flex items-center space-x-2 text-mosque font-medium text-xl transition-all hover:opacity-90"
           >
             <MapPin className="h-6 w-6 text-mosque" />
-            <span className="font-semibold">MosqueLocator</span>
+            <span className="font-semibold">Good Muslim</span>
           </Link>
           
           <nav className="hidden md:flex items-center space-x-8">
             <NavLink to="/">Home</NavLink>
             <NavLink to="/mosques">Find Mosques</NavLink>
+            <NavLink to="/how-it-works">How It Works</NavLink>
             <NavLink to="/about">About</NavLink>
             <NavLink to="/contact">Contact</NavLink>
           </nav>
           
           <div className="hidden md:flex items-center space-x-3">
-            <Button size="sm" variant="outline" className="gap-2 rounded-full">
-              <Bell className="h-4 w-4" />
-              <span>Prayer Alerts</span>
+            <Button size="sm" variant="outline" className="gap-2 rounded-full" asChild>
+              <Link to="/admin/login">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Admin</span>
+              </Link>
             </Button>
             <Button size="sm" variant="default" className="gap-2 rounded-full">
               <MapPin className="h-4 w-4" />
@@ -77,13 +80,16 @@ export const Header = () => {
             <nav className="flex flex-col space-y-4">
               <MobileNavLink to="/" onClick={() => setIsMenuOpen(false)}>Home</MobileNavLink>
               <MobileNavLink to="/mosques" onClick={() => setIsMenuOpen(false)}>Find Mosques</MobileNavLink>
+              <MobileNavLink to="/how-it-works" onClick={() => setIsMenuOpen(false)}>How It Works</MobileNavLink>
               <MobileNavLink to="/about" onClick={() => setIsMenuOpen(false)}>About</MobileNavLink>
               <MobileNavLink to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</MobileNavLink>
               
               <div className="flex items-center space-x-3 pt-2">
-                <Button size="sm" variant="outline" className="gap-2 w-full justify-center rounded-full">
-                  <Bell className="h-4 w-4" />
-                  <span>Prayer Alerts</span>
+                <Button size="sm" variant="outline" className="gap-2 w-full justify-center rounded-full" asChild>
+                  <Link to="/admin/login" onClick={() => setIsMenuOpen(false)}>
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Admin</span>
+                  </Link>
                 </Button>
                 <Button size="sm" variant="default" className="gap-2 w-full justify-center rounded-full">
                   <MapPin className="h-4 w-4" />
