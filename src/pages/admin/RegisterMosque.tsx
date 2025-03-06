@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/ui/container";
@@ -18,14 +17,12 @@ const RegisterMosque = () => {
   const [showSchoolOptions, setShowSchoolOptions] = useState(false);
   const { signUp, user } = useAuth();
   
-  // If user is already logged in, redirect to dashboard
   useEffect(() => {
     if (user) {
       navigate("/admin/dashboard");
     }
   }, [user, navigate]);
   
-  // Form data
   const [formData, setFormData] = useState({
     mosqueName: "",
     address: "",
@@ -70,10 +67,8 @@ const RegisterMosque = () => {
     setShowSchoolOptions(false);
   };
 
-  // Extract coordinates from Google Maps link
   const extractCoordinates = (googleMapsLink: string) => {
     try {
-      // Common pattern for Google Maps links with coordinates
       const regex = /@(-?\d+\.\d+),(-?\d+\.\d+)/;
       const match = googleMapsLink.match(regex);
       
@@ -99,7 +94,6 @@ const RegisterMosque = () => {
       return;
     }
     
-    // Final submission
     if (formData.adminPassword !== formData.confirmPassword) {
       toast({
         variant: "destructive",
@@ -112,12 +106,10 @@ const RegisterMosque = () => {
     setIsLoading(true);
     
     try {
-      // Extract coordinates from Google Maps link if provided
       const coordinates = formData.googleMapsLink 
         ? extractCoordinates(formData.googleMapsLink)
         : null;
       
-      // 1. Register user with Supabase Auth
       const { data: authData, error: authError } = await signUp(
         formData.adminEmail,
         formData.adminPassword,
@@ -130,24 +122,21 @@ const RegisterMosque = () => {
         throw new Error(authError.message);
       }
       
-      // 2. Create mosque record in database
       const { data: mosqueData, error: mosqueError } = await supabase
         .from('mosques')
-        .insert([
-          {
-            name: formData.mosqueName,
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            country: formData.country,
-            coordinates: coordinates || null,
-            school: formData.school,
-            facilities: formData.facilities,
-            contactNumber: formData.contactNumber || null,
-            email: formData.email || null,
-            website: formData.website || null,
-          }
-        ])
+        .insert([{
+          name: formData.mosqueName,
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          country: formData.country,
+          coordinates: coordinates,
+          school: formData.school,
+          facilities: formData.facilities,
+          contactNumber: formData.contactNumber || null,
+          email: formData.email || null,
+          website: formData.website || null,
+        }])
         .select('id')
         .single();
       
@@ -155,7 +144,6 @@ const RegisterMosque = () => {
         throw new Error(mosqueError.message);
       }
       
-      // 3. Update the user's profile with the mosque ID
       if (authData?.user) {
         const { error: profileError } = await supabase
           .from('profiles')
@@ -203,7 +191,6 @@ const RegisterMosque = () => {
               Join our platform to keep your community updated with accurate prayer times
             </p>
 
-            {/* Progress Steps */}
             <div className="flex justify-between items-center mb-8 max-w-md mx-auto">
               <div className="flex flex-col items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${currentStep >= 1 ? 'bg-mosque text-white' : 'bg-muted text-muted-foreground'}`}>
@@ -228,7 +215,6 @@ const RegisterMosque = () => {
             </div>
             
             <form onSubmit={handleSubmit}>
-              {/* Step 1: Basic Mosque Information */}
               {currentStep === 1 && (
                 <div className="space-y-4">
                   <div>
@@ -337,7 +323,6 @@ const RegisterMosque = () => {
                 </div>
               )}
               
-              {/* Step 2: Detailed Mosque Information */}
               {currentStep === 2 && (
                 <div className="space-y-4">
                   <div>
@@ -460,7 +445,6 @@ const RegisterMosque = () => {
                 </div>
               )}
               
-              {/* Step 3: Admin Account Creation */}
               {currentStep === 3 && (
                 <div className="space-y-4">
                   <div>

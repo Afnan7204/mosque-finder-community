@@ -9,6 +9,163 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          content: string
+          created_at: string | null
+          dateposted: string | null
+          eventdate: string | null
+          eventtime: string | null
+          expirydate: string | null
+          id: string
+          mosque_id: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          dateposted?: string | null
+          eventdate?: string | null
+          eventtime?: string | null
+          expirydate?: string | null
+          id?: string
+          mosque_id: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          dateposted?: string | null
+          eventdate?: string | null
+          eventtime?: string | null
+          expirydate?: string | null
+          id?: string
+          mosque_id?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcements_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mosques: {
+        Row: {
+          address: string
+          city: string
+          contactnumber: string | null
+          coordinates: Json | null
+          country: string
+          created_at: string | null
+          email: string | null
+          facilities: string[] | null
+          id: string
+          image: string | null
+          isapproved: boolean | null
+          name: string
+          school: string
+          state: string
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address: string
+          city: string
+          contactnumber?: string | null
+          coordinates?: Json | null
+          country: string
+          created_at?: string | null
+          email?: string | null
+          facilities?: string[] | null
+          id?: string
+          image?: string | null
+          isapproved?: boolean | null
+          name: string
+          school: string
+          state: string
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string
+          city?: string
+          contactnumber?: string | null
+          coordinates?: Json | null
+          country?: string
+          created_at?: string | null
+          email?: string | null
+          facilities?: string[] | null
+          id?: string
+          image?: string | null
+          isapproved?: boolean | null
+          name?: string
+          school?: string
+          state?: string
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      prayer_times: {
+        Row: {
+          asr: Json
+          created_at: string | null
+          date: string
+          dhuhr: Json
+          fajr: Json
+          id: string
+          isha: Json
+          jummah: Json | null
+          maghrib: Json
+          mosque_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          asr: Json
+          created_at?: string | null
+          date: string
+          dhuhr: Json
+          fajr: Json
+          id?: string
+          isha: Json
+          jummah?: Json | null
+          maghrib: Json
+          mosque_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          asr?: Json
+          created_at?: string | null
+          date?: string
+          dhuhr?: Json
+          fajr?: Json
+          id?: string
+          isha?: Json
+          jummah?: Json | null
+          maghrib?: Json
+          mosque_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prayer_times_mosque_id_fkey"
+            columns: ["mosque_id"]
+            isOneToOne: false
+            referencedRelation: "mosques"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string | null
