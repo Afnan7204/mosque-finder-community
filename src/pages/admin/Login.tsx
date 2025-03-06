@@ -1,12 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, LockKeyhole } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -15,29 +16,49 @@ const AdminLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { signIn, user } = useAuth();
+  
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/admin/dashboard");
+    }
+  }, [user, navigate]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Mock login - in a real app this would verify credentials against a backend
-      if (email === "admin@example.com" && password === "password") {
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Login failed",
+          description: error.message,
+        });
+      } else {
         toast({
           title: "Login successful",
           description: "Welcome to the admin dashboard",
         });
-        navigate("/admin/dashboard");
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login failed",
-          description: "Invalid email or password. Try admin@example.com / password",
-        });
+        
+        // Redirect to the dashboard or the page they were trying to access
+        const from = location.state?.from?.pathname || "/admin/dashboard";
+        navigate(from);
       }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Login error",
+        description: "An unexpected error occurred. Please try again.",
+      });
+      console.error("Login error:", error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -65,7 +86,7 @@ const AdminLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-mosque focus:border-transparent"
-                  placeholder="admin@example.com"
+                  placeholder="Enter your email"
                   required
                 />
               </div>

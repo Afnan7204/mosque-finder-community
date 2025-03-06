@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useToast } from "@/hooks/use-toast";
 import { BadgeCheck, Building, ChevronDown, Info, MapPin, Phone, X, Link as LinkIcon } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const RegisterMosque = () => {
   const navigate = useNavigate();
@@ -14,6 +16,14 @@ const RegisterMosque = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [showSchoolOptions, setShowSchoolOptions] = useState(false);
+  const { signUp, user } = useAuth();
+  
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate("/admin/dashboard");
+    }
+  }, [user, navigate]);
   
   // Form data
   const [formData, setFormData] = useState({
@@ -69,8 +79,8 @@ const RegisterMosque = () => {
       
       if (match && match.length >= 3) {
         return {
-          latitude: match[1],
-          longitude: match[2]
+          latitude: parseFloat(match[1]),
+          longitude: parseFloat(match[2])
         };
       }
       
@@ -81,7 +91,7 @@ const RegisterMosque = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (currentStep < 3) {
@@ -101,27 +111,78 @@ const RegisterMosque = () => {
     
     setIsLoading(true);
     
-    // Extract coordinates from Google Maps link if provided
-    const coordinates = formData.googleMapsLink 
-      ? extractCoordinates(formData.googleMapsLink)
-      : null;
-    
-    // Prepare data for submission
-    const mosqueData = {
-      ...formData,
-      coordinates: coordinates || { latitude: "", longitude: "" }
-    };
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Mosque data to be saved:", mosqueData);
+    try {
+      // Extract coordinates from Google Maps link if provided
+      const coordinates = formData.googleMapsLink 
+        ? extractCoordinates(formData.googleMapsLink)
+        : null;
+      
+      // 1. Register user with Supabase Auth
+      const { data: authData, error: authError } = await signUp(
+        formData.adminEmail,
+        formData.adminPassword,
+        {
+          name: formData.adminName,
+        }
+      );
+      
+      if (authError) {
+        throw new Error(authError.message);
+      }
+      
+      // 2. Create mosque record in database
+      const { data: mosqueData, error: mosqueError } = await supabase
+        .from('mosques')
+        .insert([
+          {
+            name: formData.mosqueName,
+            address: formData.address,
+            city: formData.city,
+            state: formData.state,
+            country: formData.country,
+            coordinates: coordinates || null,
+            school: formData.school,
+            facilities: formData.facilities,
+            contactNumber: formData.contactNumber || null,
+            email: formData.email || null,
+            website: formData.website || null,
+          }
+        ])
+        .select('id')
+        .single();
+      
+      if (mosqueError) {
+        throw new Error(mosqueError.message);
+      }
+      
+      // 3. Update the user's profile with the mosque ID
+      if (authData?.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ mosque_id: mosqueData.id })
+          .eq('id', authData.user.id);
+          
+        if (profileError) {
+          console.error("Error updating profile:", profileError);
+        }
+      }
+      
       toast({
         title: "Registration successful",
         description: "Your mosque registration is pending approval",
       });
+      
       navigate("/admin/login");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Registration failed",
+        description: error.message || "An unexpected error occurred",
+      });
+      console.error("Registration error:", error);
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
   const goBack = () => {
