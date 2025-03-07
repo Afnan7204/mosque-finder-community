@@ -139,7 +139,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 size="lg"
-                className="text-white border-white/30 hover:bg-white/10 rounded-full"
+                className="bg-white text-mosque border-white/30 hover:bg-white/80 rounded-full"
                 asChild
               >
                 <Link to="/admin/login">Admin Login</Link>

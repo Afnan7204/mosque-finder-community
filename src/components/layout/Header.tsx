@@ -47,7 +47,7 @@ export const Header = () => {
           </nav>
           
           <div className="hidden md:flex items-center space-x-3">
-            <Button size="sm" variant="outline" className="gap-2 rounded-full" asChild>
+            <Button size="sm" variant="outline" className="gap-2 rounded-full bg-white text-mosque hover:bg-gray-100" asChild>
               <Link to="/admin/login">
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Admin</span>
@@ -85,7 +85,7 @@ export const Header = () => {
               <MobileNavLink to="/contact" onClick={() => setIsMenuOpen(false)}>Contact</MobileNavLink>
               
               <div className="flex items-center space-x-3 pt-2">
-                <Button size="sm" variant="outline" className="gap-2 w-full justify-center rounded-full" asChild>
+                <Button size="sm" variant="outline" className="gap-2 w-full justify-center rounded-full bg-white text-mosque hover:bg-gray-100" asChild>
                   <Link to="/admin/login" onClick={() => setIsMenuOpen(false)}>
                     <LayoutDashboard className="h-4 w-4" />
                     <span>Admin</span>
