@@ -22,12 +22,12 @@ export const getPrayerTimesByMosque = async (mosqueId: string, date?: string): P
   return data.map((item) => ({
     mosqueId: item.mosque_id,
     date: item.date,
-    fajr: item.fajr,
-    dhuhr: item.dhuhr,
-    asr: item.asr,
-    maghrib: item.maghrib,
-    isha: item.isha,
-    jummah: item.jummah
+    fajr: item.fajr as { adhan: string; iqamah: string },
+    dhuhr: item.dhuhr as { adhan: string; iqamah: string },
+    asr: item.asr as { adhan: string; iqamah: string },
+    maghrib: item.maghrib as { adhan: string; iqamah: string },
+    isha: item.isha as { adhan: string; iqamah: string },
+    jummah: item.jummah as { khutbah: string; prayer: string }[] | undefined
   }));
 };
 

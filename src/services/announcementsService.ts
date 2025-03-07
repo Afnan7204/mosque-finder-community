@@ -7,7 +7,7 @@ export const getAnnouncementsByMosque = async (mosqueId: string): Promise<Announ
     .from("announcements")
     .select("*")
     .eq("mosque_id", mosqueId)
-    .order("datePosted", { ascending: false });
+    .order("dateposted", { ascending: false });
   
   if (error) {
     console.error("Error fetching announcements:", error);
@@ -19,11 +19,11 @@ export const getAnnouncementsByMosque = async (mosqueId: string): Promise<Announ
     mosqueId: item.mosque_id,
     title: item.title,
     content: item.content,
-    datePosted: item.datePosted,
-    expiryDate: item.expiryDate,
+    datePosted: item.dateposted,
+    expiryDate: item.expirydate,
     type: item.type as "general" | "event" | "eid" | "ramadan",
-    eventDate: item.eventDate,
-    eventTime: item.eventTime
+    eventDate: item.eventdate,
+    eventTime: item.eventtime
   }));
 };
 
@@ -34,11 +34,11 @@ export const createAnnouncement = async (announcement: Omit<Announcement, "id">)
       mosque_id: announcement.mosqueId,
       title: announcement.title,
       content: announcement.content,
-      datePosted: announcement.datePosted || new Date().toISOString(),
-      expiryDate: announcement.expiryDate,
+      dateposted: announcement.datePosted || new Date().toISOString(),
+      expirydate: announcement.expiryDate,
       type: announcement.type,
-      eventDate: announcement.eventDate,
-      eventTime: announcement.eventTime
+      eventdate: announcement.eventDate,
+      eventtime: announcement.eventTime
     })
     .select("id")
     .single();
@@ -57,10 +57,10 @@ export const updateAnnouncement = async (announcement: Announcement): Promise<vo
     .update({
       title: announcement.title,
       content: announcement.content,
-      expiryDate: announcement.expiryDate,
+      expirydate: announcement.expiryDate,
       type: announcement.type,
-      eventDate: announcement.eventDate,
-      eventTime: announcement.eventTime
+      eventdate: announcement.eventDate,
+      eventtime: announcement.eventTime
     })
     .eq("id", announcement.id);
   
