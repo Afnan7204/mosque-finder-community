@@ -116,6 +116,7 @@ export const registerMosque = async (mosqueData: Omit<Mosque, 'id'>): Promise<{i
         email: mosqueData.email,
         website: mosqueData.website,
         image: mosqueData.image,
+        isapproved: false, // Set to false by default for admin approval
       }])
       .select('id')
       .single();

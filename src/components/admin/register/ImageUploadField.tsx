@@ -39,6 +39,7 @@ export const ImageUploadField = ({ initialImageUrl, onImageUploaded, mosqueId }:
           title: "File too large",
           description: `Maximum file size is 1.5MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
         });
+        setUploading(false);
         return;
       }
       
