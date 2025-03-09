@@ -13,6 +13,7 @@ import { BasicInfoForm } from "@/components/admin/register/BasicInfoForm";
 import { MosqueDetailsForm } from "@/components/admin/register/MosqueDetailsForm";
 import { AccountForm } from "@/components/admin/register/AccountForm";
 import { RegistrationSteps } from "@/components/admin/register/RegistrationSteps";
+import { registerMosque } from "@/services/mosqueService";
 
 const RegisterMosque = () => {
   const navigate = useNavigate();
@@ -97,10 +98,12 @@ const RegisterMosque = () => {
     setIsLoading(true);
     
     try {
+      // Extract coordinates from Google Maps link
       const coordinates = formData.googleMapsLink 
         ? extractCoordinates(formData.googleMapsLink)
         : null;
       
+      // Sign up the admin user
       const { data: authData, error: authError } = await signUp(
         formData.adminEmail,
         formData.adminPassword,
@@ -113,95 +116,44 @@ const RegisterMosque = () => {
         throw new Error(authError.message);
       }
       
-      const { data: mosqueData, error: mosqueError } = await supabase
-        .from('mosques')
-        .insert([{
-          name: formData.mosqueName,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          country: formData.country,
-          coordinates: coordinates,
-          school: formData.school,
-          facilities: formData.facilities,
-          contactnumber: formData.contactNumber || null,
-          email: formData.email || null,
-          website: formData.website || null,
-          image: formData.imageUrl || null,
-        }])
-        .select('id')
-        .single();
-      
-      if (mosqueError) {
-        throw new Error(mosqueError.message);
+      if (!authData?.user) {
+        throw new Error("Failed to create user account");
       }
       
-      if (authData?.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ mosque_id: mosqueData.id })
-          .eq('id', authData.user.id);
-          
-        if (profileError) {
-          console.error("Error updating profile:", profileError);
-        }
+      // Register the mosque
+      const { id: mosqueId } = await registerMosque({
+        name: formData.mosqueName,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        country: formData.country,
+        coordinates,
+        school: formData.school as "Shafi'i" | "Hanafi" | "Maliki" | "Hanbali" | "Other",
+        facilities: formData.facilities,
+        contactNumber: formData.contactNumber,
+        email: formData.email,
+        website: formData.website,
+        image: formData.imageUrl,
+      });
+      
+      // Update the user profile with the mosque ID
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ mosque_id: mosqueId })
+        .eq('id', authData.user.id);
         
-        // If there's an image and it's a temporary one, move it to the proper location
-        if (formData.imageUrl && formData.imageUrl.includes('temp-')) {
-          const oldPath = formData.imageUrl.split('mosque_images/')[1];
-          const fileExt = oldPath.split('.').pop();
-          const newPath = `${mosqueData.id}/mosque-image.${fileExt}`;
-          
-          // Download the existing file
-          const { data: fileData, error: downloadError } = await supabase.storage
-            .from('mosque_images')
-            .download(oldPath);
-            
-          if (downloadError) {
-            console.error("Error downloading temporary image:", downloadError);
-          } else if (fileData) {
-            // Upload to the new location
-            const { error: uploadError, data } = await supabase.storage
-              .from('mosque_images')
-              .upload(newPath, fileData, {
-                upsert: true,
-                contentType: fileData.type,
-              });
-              
-            if (uploadError) {
-              console.error("Error moving image to permanent location:", uploadError);
-            } else {
-              // Get the public URL
-              const { data: publicUrlData } = supabase.storage
-                .from('mosque_images')
-                .getPublicUrl(newPath);
-                
-              // Update the mosque with the new image URL
-              const { error: updateError } = await supabase
-                .from('mosques')
-                .update({ image: publicUrlData.publicUrl })
-                .eq('id', mosqueData.id);
-                
-              if (updateError) {
-                console.error("Error updating mosque with new image URL:", updateError);
-              }
-              
-              // Remove the temporary file
-              const { error: removeError } = await supabase.storage
-                .from('mosque_images')
-                .remove([oldPath]);
-                
-              if (removeError) {
-                console.error("Error removing temporary image:", removeError);
-              }
-            }
-          }
-        }
+      if (profileError) {
+        console.error("Error updating profile:", profileError);
+      }
+      
+      // If there's an image and it's a temporary one, move it to the proper location
+      if (formData.imageUrl && formData.imageUrl.includes('temp-')) {
+        await handlePermanentImageStorage(formData.imageUrl, mosqueId);
       }
       
       toast({
         title: "Registration successful",
-        description: "Your mosque registration is pending approval",
+        description: "Your mosque registration is pending approval. Please check your email to verify your account.",
       });
       
       navigate("/admin/login");
@@ -214,6 +166,68 @@ const RegisterMosque = () => {
       console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handlePermanentImageStorage = async (tempImageUrl: string, mosqueId: string) => {
+    try {
+      const oldPath = tempImageUrl.split('mosque_images/')[1];
+      const fileExt = oldPath.split('.').pop();
+      const newPath = `${mosqueId}/mosque-image.${fileExt}`;
+      
+      // Download the existing file
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from('mosque_images')
+        .download(oldPath);
+        
+      if (downloadError) {
+        console.error("Error downloading temporary image:", downloadError);
+        return;
+      }
+      
+      if (!fileData) {
+        console.error("No file data received");
+        return;
+      }
+      
+      // Upload to the new location
+      const { error: uploadError } = await supabase.storage
+        .from('mosque_images')
+        .upload(newPath, fileData, {
+          upsert: true,
+          contentType: fileData.type,
+        });
+        
+      if (uploadError) {
+        console.error("Error moving image to permanent location:", uploadError);
+        return;
+      }
+      
+      // Get the public URL
+      const { data: publicUrlData } = supabase.storage
+        .from('mosque_images')
+        .getPublicUrl(newPath);
+        
+      // Update the mosque with the new image URL
+      const { error: updateError } = await supabase
+        .from('mosques')
+        .update({ image: publicUrlData.publicUrl })
+        .eq('id', mosqueId);
+        
+      if (updateError) {
+        console.error("Error updating mosque with new image URL:", updateError);
+      }
+      
+      // Remove the temporary file
+      const { error: removeError } = await supabase.storage
+        .from('mosque_images')
+        .remove([oldPath]);
+        
+      if (removeError) {
+        console.error("Error removing temporary image:", removeError);
+      }
+    } catch (error) {
+      console.error("Error in handlePermanentImageStorage:", error);
     }
   };
 

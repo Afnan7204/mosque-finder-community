@@ -70,26 +70,64 @@ export const getMosques = async (limit?: number): Promise<Mosque[]> => {
 };
 
 export const updateMosque = async (mosque: Partial<Mosque> & { id: string }): Promise<void> => {
-  const { error } = await supabase
-    .from("mosques")
-    .update({
-      name: mosque.name,
-      address: mosque.address,
-      city: mosque.city,
-      state: mosque.state,
-      country: mosque.country,
-      coordinates: mosque.coordinates,
-      school: mosque.school,
-      facilities: mosque.facilities,
-      contactnumber: mosque.contactNumber,
-      email: mosque.email,
-      website: mosque.website,
-      image: mosque.image
-    })
-    .eq("id", mosque.id);
-  
-  if (error) {
-    console.error("Error updating mosque:", error);
+  try {
+    const { error } = await supabase
+      .from("mosques")
+      .update({
+        name: mosque.name,
+        address: mosque.address,
+        city: mosque.city,
+        state: mosque.state,
+        country: mosque.country,
+        coordinates: mosque.coordinates,
+        school: mosque.school,
+        facilities: mosque.facilities,
+        contactnumber: mosque.contactNumber,
+        email: mosque.email,
+        website: mosque.website,
+        image: mosque.image
+      })
+      .eq("id", mosque.id);
+    
+    if (error) {
+      console.error("Error updating mosque:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error in updateMosque function:", error);
+    throw error;
+  }
+};
+
+export const registerMosque = async (mosqueData: Omit<Mosque, 'id'>): Promise<{id: string}> => {
+  try {
+    const { data, error } = await supabase
+      .from('mosques')
+      .insert([{
+        name: mosqueData.name,
+        address: mosqueData.address,
+        city: mosqueData.city,
+        state: mosqueData.state,
+        country: mosqueData.country,
+        coordinates: mosqueData.coordinates,
+        school: mosqueData.school,
+        facilities: mosqueData.facilities,
+        contactnumber: mosqueData.contactNumber,
+        email: mosqueData.email,
+        website: mosqueData.website,
+        image: mosqueData.image,
+      }])
+      .select('id')
+      .single();
+    
+    if (error) {
+      console.error("Error registering mosque:", error);
+      throw error;
+    }
+    
+    return { id: data.id };
+  } catch (error) {
+    console.error("Error in registerMosque function:", error);
     throw error;
   }
 };

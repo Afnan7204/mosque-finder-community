@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Upload, Image as ImageIcon } from "lucide-react";
+import { Upload, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -14,17 +14,34 @@ interface ImageUploadFieldProps {
 export const ImageUploadField = ({ initialImageUrl, onImageUploaded, mosqueId }: ImageUploadFieldProps) => {
   const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | undefined>(initialImageUrl);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  
+  // Maximum file size: 1.5MB
+  const MAX_FILE_SIZE = 1.5 * 1024 * 1024;
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
+      setError(null);
       
       if (!event.target.files || event.target.files.length === 0) {
         return;
       }
       
       const file = event.target.files[0];
+      
+      // Check file size
+      if (file.size > MAX_FILE_SIZE) {
+        setError(`File size exceeds 1.5MB limit. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+        toast({
+          variant: "destructive",
+          title: "File too large",
+          description: `Maximum file size is 1.5MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB`,
+        });
+        return;
+      }
+      
       const fileExt = file.name.split('.').pop();
       const filePath = mosqueId 
         ? `${mosqueId}/mosque-image.${fileExt}` 
@@ -53,6 +70,7 @@ export const ImageUploadField = ({ initialImageUrl, onImageUploaded, mosqueId }:
         description: "Your mosque image has been uploaded",
       });
     } catch (error: any) {
+      setError(error.message || "There was an error uploading your image");
       toast({
         variant: "destructive",
         title: "Upload failed",
@@ -98,7 +116,7 @@ export const ImageUploadField = ({ initialImageUrl, onImageUploaded, mosqueId }:
               <span className="text-muted-foreground text-xs">(Optional)</span>
             </div>
             <div className="mt-2 text-xs text-muted-foreground">
-              Upload a photo of your mosque
+              Upload a photo of your mosque (max 1.5MB)
             </div>
           </label>
         )}
@@ -112,6 +130,13 @@ export const ImageUploadField = ({ initialImageUrl, onImageUploaded, mosqueId }:
           className="hidden"
         />
       </div>
+      
+      {error && (
+        <div className="text-sm text-destructive flex items-center gap-1">
+          <AlertCircle className="h-4 w-4" />
+          <span>{error}</span>
+        </div>
+      )}
       
       {uploading && (
         <div className="text-sm text-muted-foreground animate-pulse">
