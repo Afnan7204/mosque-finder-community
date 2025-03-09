@@ -44,6 +44,7 @@ const RegisterMosque = () => {
     adminEmail: "",
     adminPassword: "",
     confirmPassword: "",
+    imageUrl: "",
   });
 
   const availableFacilities = [
@@ -70,6 +71,10 @@ const RegisterMosque = () => {
   const handleSchoolSelect = (school: string) => {
     setFormData((prev) => ({ ...prev, school }));
     setShowSchoolOptions(false);
+  };
+
+  const setImageUrl = (url: string) => {
+    setFormData((prev) => ({ ...prev, imageUrl: url }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,9 +124,10 @@ const RegisterMosque = () => {
           coordinates: coordinates,
           school: formData.school,
           facilities: formData.facilities,
-          contactNumber: formData.contactNumber || null,
+          contactnumber: formData.contactNumber || null,
           email: formData.email || null,
           website: formData.website || null,
+          image: formData.imageUrl || null,
         }])
         .select('id')
         .single();
@@ -138,6 +144,58 @@ const RegisterMosque = () => {
           
         if (profileError) {
           console.error("Error updating profile:", profileError);
+        }
+        
+        // If there's an image and it's a temporary one, move it to the proper location
+        if (formData.imageUrl && formData.imageUrl.includes('temp-')) {
+          const oldPath = formData.imageUrl.split('mosque_images/')[1];
+          const fileExt = oldPath.split('.').pop();
+          const newPath = `${mosqueData.id}/mosque-image.${fileExt}`;
+          
+          // Download the existing file
+          const { data: fileData, error: downloadError } = await supabase.storage
+            .from('mosque_images')
+            .download(oldPath);
+            
+          if (downloadError) {
+            console.error("Error downloading temporary image:", downloadError);
+          } else if (fileData) {
+            // Upload to the new location
+            const { error: uploadError, data } = await supabase.storage
+              .from('mosque_images')
+              .upload(newPath, fileData, {
+                upsert: true,
+                contentType: fileData.type,
+              });
+              
+            if (uploadError) {
+              console.error("Error moving image to permanent location:", uploadError);
+            } else {
+              // Get the public URL
+              const { data: publicUrlData } = supabase.storage
+                .from('mosque_images')
+                .getPublicUrl(newPath);
+                
+              // Update the mosque with the new image URL
+              const { error: updateError } = await supabase
+                .from('mosques')
+                .update({ image: publicUrlData.publicUrl })
+                .eq('id', mosqueData.id);
+                
+              if (updateError) {
+                console.error("Error updating mosque with new image URL:", updateError);
+              }
+              
+              // Remove the temporary file
+              const { error: removeError } = await supabase.storage
+                .from('mosque_images')
+                .remove([oldPath]);
+                
+              if (removeError) {
+                console.error("Error removing temporary image:", removeError);
+              }
+            }
+          }
         }
       }
       
@@ -196,6 +254,7 @@ const RegisterMosque = () => {
                   showSchoolOptions={showSchoolOptions}
                   setShowSchoolOptions={setShowSchoolOptions}
                   availableFacilities={availableFacilities}
+                  setImageUrl={setImageUrl}
                 />
               )}
               

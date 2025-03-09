@@ -1,6 +1,7 @@
 
 import React from "react";
 import { BadgeCheck, ChevronDown, Info, Phone } from "lucide-react";
+import { ImageUploadField } from "./ImageUploadField";
 
 interface MosqueDetailsFormProps {
   formData: {
@@ -9,6 +10,7 @@ interface MosqueDetailsFormProps {
     contactNumber: string;
     email: string;
     website: string;
+    imageUrl?: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleFacilityToggle: (facility: string) => void;
@@ -16,6 +18,7 @@ interface MosqueDetailsFormProps {
   showSchoolOptions: boolean;
   setShowSchoolOptions: React.Dispatch<React.SetStateAction<boolean>>;
   availableFacilities: string[];
+  setImageUrl: (url: string) => void;
 }
 
 export const MosqueDetailsForm = ({ 
@@ -25,7 +28,8 @@ export const MosqueDetailsForm = ({
   handleSchoolSelect,
   showSchoolOptions,
   setShowSchoolOptions,
-  availableFacilities
+  availableFacilities,
+  setImageUrl
 }: MosqueDetailsFormProps) => {
   return (
     <div className="space-y-4">
@@ -63,6 +67,11 @@ export const MosqueDetailsForm = ({
         </div>
       </div>
       
+      <ImageUploadField 
+        initialImageUrl={formData.imageUrl}
+        onImageUploaded={setImageUrl} 
+      />
+
       <div>
         <label className="block text-sm font-medium mb-2">
           Facilities
