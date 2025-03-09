@@ -37,6 +37,7 @@ const RegisterMosque = () => {
     country: "India",
     googleMapsLink: "",
     school: "Shafi'i",
+    customSchool: "",
     facilities: [] as string[],
     contactNumber: "",
     email: "",
@@ -120,6 +121,11 @@ const RegisterMosque = () => {
         throw new Error("Failed to create user account");
       }
       
+      // Determine school value (use custom value if "Other" is selected)
+      const schoolValue = formData.school === "Other" && formData.customSchool 
+        ? formData.customSchool 
+        : formData.school;
+      
       // Register the mosque
       const { id: mosqueId } = await registerMosque({
         name: formData.mosqueName,
@@ -128,7 +134,7 @@ const RegisterMosque = () => {
         state: formData.state,
         country: formData.country,
         coordinates,
-        school: formData.school as "Shafi'i" | "Hanafi" | "Maliki" | "Hanbali" | "Other",
+        school: schoolValue as "Shafi'i" | "Hanafi" | "Maliki" | "Hanbali" | "Other",
         facilities: formData.facilities,
         contactNumber: formData.contactNumber,
         email: formData.email,

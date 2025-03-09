@@ -16,7 +16,7 @@ const MosqueDetails = () => {
   const [mosque, setMosque] = useState<Mosque | null>(null);
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [activeTab, setActiveTab] = useState<"info" | "prayers" | "announcements">("info");
+  const [activeTab, setActiveTab] = useState<"prayers" | "announcements" | "info">("prayers");
 
   useEffect(() => {
     if (id) {
@@ -78,10 +78,10 @@ const MosqueDetails = () => {
         </div>
       </div>
       
-      {/* Tabs */}
+      {/* Tabs - Reordered to Prayers -> Announcements -> Info */}
       <div className="border-b border-border mb-6">
         <div className="flex space-x-6 -mb-px">
-          {["info", "prayers", "announcements"].map((tab) => (
+          {["prayers", "announcements", "info"].map((tab) => (
             <button
               key={tab}
               className={cn(
@@ -100,90 +100,6 @@ const MosqueDetails = () => {
       
       {/* Tab content */}
       <div className="space-y-8">
-        {/* Info tab */}
-        {activeTab === "info" && (
-          <div className="space-y-6 animate-fade-in">
-            {/* Details section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">About</h2>
-                <div className="space-y-3">
-                  <div className="flex items-start">
-                    <MapPin className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
-                    <div>
-                      <h3 className="font-medium">Address</h3>
-                      <p className="text-muted-foreground">
-                        {mosque.address}, {mosque.city}, {mosque.state}, {mosque.country}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {mosque.contactNumber && (
-                    <div className="flex items-start">
-                      <Phone className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
-                      <div>
-                        <h3 className="font-medium">Phone</h3>
-                        <p className="text-muted-foreground">{mosque.contactNumber}</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {mosque.email && (
-                    <div className="flex items-start">
-                      <Mail className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
-                      <div>
-                        <h3 className="font-medium">Email</h3>
-                        <p className="text-muted-foreground">{mosque.email}</p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {mosque.website && (
-                    <div className="flex items-start">
-                      <Globe className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
-                      <div>
-                        <h3 className="font-medium">Website</h3>
-                        <a 
-                          href={mosque.website} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          {mosque.website.replace(/(^\w+:|^)\/\//, '')}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <h2 className="text-xl font-semibold">Facilities</h2>
-                <div className="flex flex-wrap gap-2">
-                  {mosque.facilities.map((facility) => (
-                    <Badge key={facility} variant="outline" className="px-3 py-1">
-                      {facility}
-                    </Badge>
-                  ))}
-                </div>
-                
-                <div className="mt-4">
-                  <h3 className="font-medium mb-2">School of Thought</h3>
-                  <Badge variant="primary">{mosque.school}</Badge>
-                </div>
-              </div>
-            </div>
-            
-            {/* Map section */}
-            <div className="mt-8">
-              <h2 className="text-xl font-semibold mb-4">Location</h2>
-              <div className="h-[300px] rounded-lg overflow-hidden border border-border">
-                <MapView mosques={[mosque]} selectedMosqueId={mosque.id} />
-              </div>
-            </div>
-          </div>
-        )}
-        
         {/* Prayers tab */}
         {activeTab === "prayers" && (
           <div className="space-y-6 animate-fade-in">
@@ -325,6 +241,90 @@ const MosqueDetails = () => {
                 <p>No announcements available</p>
               </div>
             )}
+          </div>
+        )}
+        
+        {/* Info tab */}
+        {activeTab === "info" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Details section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">About</h2>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <MapPin className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
+                    <div>
+                      <h3 className="font-medium">Address</h3>
+                      <p className="text-muted-foreground">
+                        {mosque.address}, {mosque.city}, {mosque.state}, {mosque.country}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {mosque.contactNumber && (
+                    <div className="flex items-start">
+                      <Phone className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
+                      <div>
+                        <h3 className="font-medium">Phone</h3>
+                        <p className="text-muted-foreground">{mosque.contactNumber}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {mosque.email && (
+                    <div className="flex items-start">
+                      <Mail className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
+                      <div>
+                        <h3 className="font-medium">Email</h3>
+                        <p className="text-muted-foreground">{mosque.email}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {mosque.website && (
+                    <div className="flex items-start">
+                      <Globe className="h-5 w-5 mr-3 text-muted-foreground mt-0.5" />
+                      <div>
+                        <h3 className="font-medium">Website</h3>
+                        <a 
+                          href={mosque.website} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {mosque.website.replace(/(^\w+:|^)\/\//, '')}
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold">Facilities</h2>
+                <div className="flex flex-wrap gap-2">
+                  {mosque.facilities.map((facility) => (
+                    <Badge key={facility} variant="outline" className="px-3 py-1">
+                      {facility}
+                    </Badge>
+                  ))}
+                </div>
+                
+                <div className="mt-4">
+                  <h3 className="font-medium mb-2">School of Thought</h3>
+                  <Badge variant="primary">{mosque.school}</Badge>
+                </div>
+              </div>
+            </div>
+            
+            {/* Map section */}
+            <div className="mt-8">
+              <h2 className="text-xl font-semibold mb-4">Location</h2>
+              <div className="h-[300px] rounded-lg overflow-hidden border border-border">
+                <MapView mosques={[mosque]} selectedMosqueId={mosque.id} />
+              </div>
+            </div>
           </div>
         )}
       </div>

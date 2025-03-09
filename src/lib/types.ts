@@ -10,7 +10,7 @@ export interface Mosque {
     latitude: number;
     longitude: number;
   };
-  school: "Shafi'i" | "Hanafi" | "Maliki" | "Hanbali" | "Other";
+  school: string;
   facilities: string[];
   contactNumber?: string;
   email?: string;

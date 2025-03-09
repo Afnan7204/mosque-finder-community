@@ -1,11 +1,14 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { BadgeCheck, ChevronDown, Info, Phone } from "lucide-react";
 import { ImageUploadField } from "./ImageUploadField";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface MosqueDetailsFormProps {
   formData: {
     school: string;
+    customSchool?: string;
     facilities: string[];
     contactNumber: string;
     email: string;
@@ -66,6 +69,21 @@ export const MosqueDetailsForm = ({
           )}
         </div>
       </div>
+      
+      {/* Add text input field when "Other" is selected */}
+      {formData.school === "Other" && (
+        <div>
+          <Label htmlFor="customSchool">Specify School</Label>
+          <Input
+            id="customSchool"
+            name="customSchool"
+            value={formData.customSchool || ''}
+            onChange={handleChange}
+            placeholder="Please specify the school of thought"
+            className="mt-1"
+          />
+        </div>
+      )}
       
       <ImageUploadField 
         initialImageUrl={formData.imageUrl}
