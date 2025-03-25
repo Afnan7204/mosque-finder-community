@@ -9,13 +9,106 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      mosques: {
+        Row: {
+          address: string
+          city: string
+          contactnumber: string | null
+          coordinates: Json
+          country: string
+          email: string | null
+          facilities: string[] | null
+          id: string
+          image: string | null
+          isapproved: boolean | null
+          name: string
+          school: string
+          state: string
+          website: string | null
+        }
+        Insert: {
+          address: string
+          city: string
+          contactnumber?: string | null
+          coordinates: Json
+          country: string
+          email?: string | null
+          facilities?: string[] | null
+          id?: string
+          image?: string | null
+          isapproved?: boolean | null
+          name: string
+          school: string
+          state: string
+          website?: string | null
+        }
+        Update: {
+          address?: string
+          city?: string
+          contactnumber?: string | null
+          coordinates?: Json
+          country?: string
+          email?: string | null
+          facilities?: string[] | null
+          id?: string
+          image?: string | null
+          isapproved?: boolean | null
+          name?: string
+          school?: string
+          state?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_nearby_mosques: {
+        Args: {
+          lat: number
+          lng: number
+          radius_km?: number
+        }
+        Returns: {
+          id: string
+          name: string
+          address: string
+          city: string
+          state: string
+          country: string
+          coordinates: Json
+          school: string
+          facilities: string[]
+          contactnumber: string
+          email: string
+          website: string
+          image: string
+          distance: number
+        }[]
+      }
+      search_mosques: {
+        Args: {
+          search_term: string
+        }
+        Returns: {
+          address: string
+          city: string
+          contactnumber: string | null
+          coordinates: Json
+          country: string
+          email: string | null
+          facilities: string[] | null
+          id: string
+          image: string | null
+          isapproved: boolean | null
+          name: string
+          school: string
+          state: string
+          website: string | null
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

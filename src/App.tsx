@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import Mosques from "./pages/Mosques";
 import MosqueDetails from "./pages/MosqueDetails";
 import HowItWorks from "./pages/HowItWorks";
 import NotFound from "./pages/NotFound";
@@ -25,6 +26,7 @@ const App = () => (
           <Sonner />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/mosques" element={<Mosques />} />
             <Route path="/mosque/:id" element={<MosqueDetails />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             
