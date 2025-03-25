@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Mosque, PrayerTimes } from "@/lib/types";
 import { MosqueCard } from "./MosqueCard";
 import { MapView } from "@/components/map/MapView";
-import { SearchBar } from "@/components/common/SearchBar";
 import { LocationButton } from "@/components/common/LocationButton";
 import { List, MapPin, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,10 +11,14 @@ import { Button } from "@/components/ui/button";
 interface MosqueListProps {
   mosques: Mosque[];
   prayerTimes: PrayerTimes[];
-  onSearch: (query: string, filters: { school?: string }) => void;
+  onSearch: (query: string, filters: { school?: string, womensSection?: boolean }) => void;
   onLocationFound: (latitude: number, longitude: number) => void;
   isLoading?: boolean;
   className?: string;
+  viewMode: "list" | "map";
+  setViewMode: (mode: "list" | "map") => void;
+  selectedMosqueId?: string;
+  setSelectedMosqueId: (id: string | undefined) => void;
 }
 
 export const MosqueList = ({
@@ -25,46 +28,43 @@ export const MosqueList = ({
   onLocationFound,
   isLoading = false,
   className,
+  viewMode,
+  setViewMode,
+  selectedMosqueId,
+  setSelectedMosqueId
 }: MosqueListProps) => {
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
-  const [selectedMosqueId, setSelectedMosqueId] = useState<string | undefined>(undefined);
-  
   const getPrayerTimesForMosque = (mosqueId: string) => {
     return prayerTimes.find(pt => pt.mosqueId === mosqueId);
   };
   
   return (
     <div className={cn("w-full", className)}>
-      <div className="mb-6 space-y-4">
-        <SearchBar onSearch={onSearch} />
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              size="sm"
-              className="gap-2"
-              onClick={() => setViewMode("list")}
-            >
-              <List className="h-4 w-4" />
-              <span>List</span>
-            </Button>
-            <Button
-              variant={viewMode === "map" ? "default" : "outline"}
-              size="sm"
-              className="gap-2"
-              onClick={() => setViewMode("map")}
-            >
-              <MapPin className="h-4 w-4" />
-              <span>Map</span>
-            </Button>
-          </div>
-          
-          <LocationButton 
-            onLocationFound={onLocationFound} 
-            variant="outline"
-          />
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant={viewMode === "list" ? "default" : "outline"}
+            size="sm"
+            className="gap-2"
+            onClick={() => setViewMode("list")}
+          >
+            <List className="h-4 w-4" />
+            <span>List</span>
+          </Button>
+          <Button
+            variant={viewMode === "map" ? "default" : "outline"}
+            size="sm"
+            className="gap-2"
+            onClick={() => setViewMode("map")}
+          >
+            <MapPin className="h-4 w-4" />
+            <span>Map</span>
+          </Button>
         </div>
+        
+        <LocationButton 
+          onLocationFound={onLocationFound} 
+          variant="outline"
+        />
       </div>
       
       {isLoading ? (

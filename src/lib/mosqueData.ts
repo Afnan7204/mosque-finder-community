@@ -1,4 +1,3 @@
-
 import { Mosque, PrayerTimes, Announcement } from "./types";
 
 export const mockMosques: Mosque[] = [
@@ -290,38 +289,43 @@ export const mockAnnouncements: Announcement[] = [
   },
 ];
 
-// Helper function to get prayer times for a specific mosque
 export const getMosquePrayerTimes = (mosqueId: string): PrayerTimes | undefined => {
   return mockPrayerTimes.find(pt => pt.mosqueId === mosqueId);
 };
 
-// Helper function to get announcements for a specific mosque
 export const getMosqueAnnouncements = (mosqueId: string): Announcement[] => {
   return mockAnnouncements.filter(a => a.mosqueId === mosqueId);
 };
 
-// Helper function to get a mosque by ID
 export const getMosqueById = (mosqueId: string): Mosque | undefined => {
   return mockMosques.find(m => m.id === mosqueId);
 };
 
-// Helper function to search mosques
-export const searchMosques = (query: string, school?: string): Mosque[] => {
-  const lowerCaseQuery = query.toLowerCase();
+export const searchMosques = (
+  query: string, 
+  schoolFilter?: string,
+  womensSectionFilter?: boolean
+): Mosque[] => {
+  const normalizedQuery = query.toLowerCase();
+  
   return mockMosques.filter(mosque => {
-    const matchesQuery = mosque.name.toLowerCase().includes(lowerCaseQuery) || 
-                         mosque.address.toLowerCase().includes(lowerCaseQuery) ||
-                         mosque.city.toLowerCase().includes(lowerCaseQuery);
+    const matchesQuery = !query || 
+      mosque.name.toLowerCase().includes(normalizedQuery) ||
+      mosque.address.toLowerCase().includes(normalizedQuery) ||
+      mosque.city.toLowerCase().includes(normalizedQuery) ||
+      mosque.state.toLowerCase().includes(normalizedQuery) ||
+      mosque.country.toLowerCase().includes(normalizedQuery);
     
-    const matchesSchool = school ? mosque.school === school : true;
+    const matchesSchool = !schoolFilter || 
+      mosque.school === schoolFilter;
     
-    return matchesQuery && matchesSchool;
+    const matchesWomensSection = !womensSectionFilter || 
+      (mosque.facilities && mosque.facilities.includes("Women's Section"));
+    
+    return matchesQuery && matchesSchool && matchesWomensSection;
   });
 };
 
-// Helper function to get nearest mosques
 export const getNearestMosques = (latitude: number, longitude: number, limit: number = 5): Mosque[] => {
-  // In a real app, we would calculate actual distances
-  // For now, we'll just return the mock mosques with their pre-set distances
   return mockMosques.slice(0, limit);
 };

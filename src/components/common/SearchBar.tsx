@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface SearchBarProps {
-  onSearch: (query: string, filters: { school?: string }) => void;
+  onSearch: (query: string, filters: { school?: string, womensSection?: boolean }) => void;
   className?: string;
 }
 
@@ -13,10 +13,11 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
   const [query, setQuery] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [selectedSchool, setSelectedSchool] = useState<string | undefined>(undefined);
+  const [womensSection, setWomensSection] = useState(false);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch(query, { school: selectedSchool });
+    onSearch(query, { school: selectedSchool, womensSection });
   };
   
   const handleSchoolSelect = (school: string) => {
@@ -25,6 +26,7 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
   
   const clearFilters = () => {
     setSelectedSchool(undefined);
+    setWomensSection(false);
     onSearch(query, {});
   };
   
@@ -85,6 +87,24 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
                 </div>
               </div>
               
+              <div>
+                <h4 className="font-medium text-sm mb-2 text-muted-foreground">Facilities</h4>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    className={cn(
+                      "px-3 py-1 text-sm rounded-full transition-all border",
+                      womensSection
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-secondary text-secondary-foreground border-secondary hover:bg-secondary/80"
+                    )}
+                    onClick={() => setWomensSection(!womensSection)}
+                  >
+                    Women's Section
+                  </button>
+                </div>
+              </div>
+              
               <div className="flex justify-between pt-2 border-t border-border/50">
                 <button
                   type="button"
@@ -98,7 +118,7 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
                   className="text-sm text-primary font-medium hover:underline"
                   onClick={() => {
                     setIsFiltersOpen(false);
-                    onSearch(query, { school: selectedSchool });
+                    onSearch(query, { school: selectedSchool, womensSection });
                   }}
                 >
                   Apply Filters
