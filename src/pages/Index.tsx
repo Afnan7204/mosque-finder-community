@@ -17,24 +17,27 @@ const Index = () => {
   const [mosques, setMosques] = useState<Mosque[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [selectedMosqueId, setSelectedMosqueId] = useState<string | undefined>(undefined);
   
   // Initial load of some mosques
   useEffect(() => {
     // Simulate loading
     setIsLoading(true);
     setTimeout(() => {
-      setMosques(mockMosques.slice(0, 3));
+      // Show 6 mosques on the home page
+      setMosques(mockMosques.slice(0, 6));
       setIsLoading(false);
     }, 1000);
   }, []);
   
-  const handleSearch = (query: string, filters: { school?: string }) => {
+  const handleSearch = (query: string, filters: { school?: string, womensSection?: boolean }) => {
     setIsLoading(true);
     setSearchPerformed(true);
     
     // Simulate search delay
     setTimeout(() => {
-      const results = searchMosques(query, filters.school);
+      const results = searchMosques(query, filters.school, filters.womensSection);
       setMosques(results);
       setIsLoading(false);
     }, 1000);
@@ -115,6 +118,10 @@ const Index = () => {
             onSearch={handleSearch}
             onLocationFound={handleLocationFound}
             isLoading={isLoading}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            selectedMosqueId={selectedMosqueId}
+            setSelectedMosqueId={setSelectedMosqueId}
           />
         </Container>
       </section>
